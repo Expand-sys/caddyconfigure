@@ -1,0 +1,12 @@
+
+example.test {
+        reverse_proxy 10.10.0.24:8787
+}
+
+examplessl.test {
+        reverse_proxy 10.10.0.189:8096 {
+                transport http {
+                        tls_insecure_skip_verify
+                }
+        }
+}
