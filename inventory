@@ -1,0 +1,3 @@
+[caddyserver]
+10.10.0.24 ansible_ssh_user=root
+

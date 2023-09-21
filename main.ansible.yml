@@ -1,0 +1,58 @@
+---
+- name: Configure caddy
+  hosts: caddyserver
+  vars:
+  become: false
+  tasks:
+    - name: copy existing Caddyfile to make sure there is a backup
+      ansible.builtin.copy:
+        src: /Caddyfile
+        remote_src: true
+        dest: /Caddyfile.bak
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Insert/Update configuration using a local file and validate it
+      ansible.builtin.blockinfile:
+        block: "{{ lookup('ansible.builtin.file', './caddyfile/Caddyfile') }}"
+        path: /Caddyfile
+
+    - name: restart Caddy
+      ansible.builtin.docker_container:
+        name: caddy-caddy-1
+        state: started
+        restart: true
+
+    - name: Pause play until a URL is reachable from this host
+      ansible.builtin.uri:
+        url: "https://pve.dubois.zip"
+        follow_redirects: none
+        method: GET
+      register: _result
+      until: _result.status == 200
+      retries: 6 # 6 * 5 seconds = 30sec
+      delay: 5 # Every 5 seconds
+      ignore_errors: true
+
+    - name: if _result.status != 200 revert file
+      ansible.builtin.copy:
+        src: /Caddyfile.bak
+        remote_src: true
+        dest: /Caddyfile
+        owner: root
+        group: root
+        mode: '0644'
+      when: _result.status != 200
+
+    - name: if _result.status != 200 restart caddy
+      ansible.builtin.docker_container:
+          name: caddy-caddy-1
+          state: started
+          restart: true
+      when: _result.status != 200
+
+    - name: if _result.status != 200, fail
+      ansible.builtin.fail:
+        msg: you messed up your config doofus
+      when: _result.status != 200
