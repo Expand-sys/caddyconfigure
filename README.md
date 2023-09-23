@@ -4,7 +4,7 @@ ONLY COMPATIBLE WITH BINARY VERSION FOR NOW, DOCKER COMPAT WILL COME LATER
 
 ## How to use
 1. install ansible on any linux machine or WSL install, it can even be the machine you are planning to install Caddy on. https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
-   a. `dnf install -y ansible` for rocky/alma/centos/fedora or `yay -S ansible` for arch based systems, anything else check link in 1 if your operating system is not listed install via python pip3
+   a. `dnf install -y ansible` for rocky/alma/centos/fedora or `yay -S ansible` for arch based systems, anything else check link in above if your operating system is not listed install via python pip3
 3. `git clone https://github.com/Expand-sys/caddyconfigure && cd caddyconfigure`
 4. `cp caddyfile/Caddyfile.rename-me caddyfile/Caddyfile`
 5. edit ./inventory with your favourite text editor e.g. `nano ./inventory` to have the ip address of your target server, can be 127.0.0.1 or localhost if it is running on the same machine, by default it is 127.0.0.1
