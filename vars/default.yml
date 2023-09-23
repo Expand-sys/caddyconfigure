@@ -1,0 +1,5 @@
+---
+#if you want to install/upgrade caddy on the host above please set INSTALL_CADDY to true.
+INSTALL_CADDY: true
+#Put the location of your caddyfile should you need to manually edit it and want it in an easier place to find.
+CADDYFILE_LOC: /etc/caddy/Caddyfile

@@ -1,14 +1,23 @@
 ---
 - name: Configure caddy
-  hosts: caddyserver
+  hosts: hostnode
   vars:
   become: false
+  pre_tasks:
+    - name: Load variables
+      ansible.builtin.include_vars: '{{ item }}'
+      with_first_found:
+        - "vars/default.yml"
   tasks:
+    - name: set up reverse proxy
+      include_tasks: caddyinstall.ansible.yml
+      when: INSTALL_CADDY
+
     - name: copy existing Caddyfile to make sure there is a backup
       ansible.builtin.copy:
-        src: /Caddyfile
+        src: "{{ CADDYFILE_LOC }}"
         remote_src: true
-        dest: /Caddyfile.bak
+        dest: "{{ CADDYFILE_LOC }}.bak"
         owner: root
         group: root
         mode: '0644'
@@ -16,19 +25,21 @@
     - name: Insert/Update configuration using a local file and validate it
       ansible.builtin.blockinfile:
         block: "{{ lookup('ansible.builtin.file', './caddyfile/Caddyfile') }}"
-        path: /Caddyfile
+        path: "{{ CADDYFILE_LOC }}"
+        insertafter: "####"
 
     - name: restart Caddy
-      ansible.builtin.docker_container:
-        name: caddy-caddy-1
-        state: started
-        restart: true
+      ansible.builtin.systemd_service:
+        name: caddy
+        state: restarted
+        daemon_reload: true
 
     - name: Pause play until a URL is reachable from this host
       ansible.builtin.uri:
-        url: "https://pve.dubois.zip"
+        url: "https://localhost"
         follow_redirects: none
         method: GET
+        validate_certs: false
       register: _result
       until: _result.status == 200
       retries: 6 # 6 * 5 seconds = 30sec
@@ -45,11 +56,11 @@
         mode: '0644'
       when: _result.status != 200
 
-    - name: if _result.status != 200 restart caddy
-      ansible.builtin.docker_container:
-          name: caddy-caddy-1
-          state: started
-          restart: true
+    - name: restart Caddy
+      ansible.builtin.systemd_service:
+        name: caddy
+        state: restarted
+        daemon_reload: true
       when: _result.status != 200
 
     - name: if _result.status != 200, fail

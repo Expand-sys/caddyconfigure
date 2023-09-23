@@ -1,3 +1,9 @@
+# DO NOT EDIT BELOW
+localhost {
+    respond "200"
+}
+# DO NOT EDIT ABOVE
+# V edit here V #
 
 example.test {
         reverse_proxy 10.10.0.24:8787
