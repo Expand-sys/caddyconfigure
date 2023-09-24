@@ -15,9 +15,9 @@
 
     - name: copy existing Caddyfile to make sure there is a backup
       ansible.builtin.copy:
-        src: "{{ CADDYFILE_LOC }}"
+        src: "{{ CADDYFILE_DEST }}"
         remote_src: true
-        dest: "{{ CADDYFILE_LOC }}.bak"
+        dest: "{{ CADDYFILE_DEST }}.bak"
         owner: root
         group: root
         mode: '0644'
@@ -25,8 +25,9 @@
     - name: Insert/Update configuration using a local file and validate it
       ansible.builtin.blockinfile:
         block: "{{ lookup('ansible.builtin.file', './caddyfile/Caddyfile') }}"
-        path: "{{ CADDYFILE_LOC }}"
-        insertafter: "####"
+        path: "{{ CADDYFILE_DEST }}"
+        insertafter: "### Caddy configure setup stuffs ###"
+        marker: "### {mark} user configured section ###"
 
     - name: restart Caddy
       ansible.builtin.systemd_service:

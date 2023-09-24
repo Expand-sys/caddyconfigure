@@ -5,15 +5,21 @@
     dest: /usr/bin/caddy
     mode: '0751'
 
-- name: create caddyfile
+- name: save a copy of old file
+  ansible.builtin.fetch:
+    src: "{{ CADDYFILE_DEST }}"
+    dest: './caddyfile/Caddyfile.old'
+  when: SAVE_OLD
+
+- name: create caddyfile if it does not exist
   ansible.builtin.blockinfile:
     block: |
       localhost {
         respond "200"
       }
-      ####
-    path: "{{ CADDYFILE_LOC }}"
+    path: "{{ CADDYFILE_DEST }}"
     create: true
+    marker: "### {mark} Caddy configure setup stuffs ###"
 
 - name: create Caddy systemd file
   ansible.builtin.copy:
@@ -28,8 +34,8 @@
       Type=notify
       User=root
       Group=root
-      ExecStart=/usr/bin/caddy run --environ --config {{ CADDYFILE_LOC }}
-      ExecReload=/usr/bin/caddy reload --config {{ CADDYFILE_LOC }} --force
+      ExecStart=/usr/bin/caddy run --environ --config {{ CADDYFILE_DEST }}
+      ExecReload=/usr/bin/caddy reload --config {{ CADDYFILE_DEST }} --force
       TimeoutStopSec=5s
       LimitNOFILE=1048576
       LimitNPROC=512
@@ -50,4 +56,3 @@
 
 - name: install caddy trust
   ansible.builtin.shell: "caddy trust"
-    

@@ -2,4 +2,9 @@
 #if you want to install/upgrade caddy on the host above please set INSTALL_CADDY to true.
 INSTALL_CADDY: true
 #Put the location of your caddyfile should you need to manually edit it and want it in an easier place to find.
-CADDYFILE_LOC: /etc/caddy/Caddyfile
+CADDYFILE_DEST: /etc/caddy/Caddyfile
+# if you already set up caddy before and need to save you caddy file to copy over to your new one set this to true.
+# but it will likely just add the new stuff below your old configuration and keep everything working
+# if you do want to delete you old caddy file and use caddyconfigure for everything change this to true, copy the contents from ../caddyfile/Caddyfile.old to ../caddyfile/Caddyfile, 
+# delete the Caddy file from the server and run the script again
+SAVE_OLD: false
